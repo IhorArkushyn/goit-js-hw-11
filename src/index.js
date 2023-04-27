@@ -1,7 +1,7 @@
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import { createPictureMarkup } from './js/pictureMarkup';
+// import { createPictureMarkup } from './js/pictureMarkup';
 import { fetchPictures } from './js/fetchPictures';
 import './css/styles.css';
 
@@ -18,12 +18,29 @@ pictureContainer.addEventListener('click', onImageClick);
 searchBtn.addEventListener('click', onPictureSearch);
 formInput.addEventListener('input', onFormInput);
 console.log(formInput);
+
 function onFormInput(evt) {
   query = evt.currentTarget.value;
-  console.log(query);
+  return query;
 }
+console.log(pictureContainer);
 console.log(formInput);
-pictureContainer.insertAdjacentHTML('beforeend', addPictureMarcup);
+function onPictureSearch(evt) {
+  pictureContainer.insertAdjacentHTML('beforeend', addPictureMarcup);
+}
+
+
+async function addGalleryClick() {
+  try {
+    const response = await createPictureMarkup(query, page);
+    const images = response.data.hits;
+    createGalleryItem(images);
+    scroll();
+    lightbox.refresh();
+  } catch (error) {
+    console.error(error);
+  }
+}
 
 
 
