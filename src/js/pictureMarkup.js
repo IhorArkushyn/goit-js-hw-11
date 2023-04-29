@@ -1,5 +1,5 @@
 export { createPictureMarkup };
-// import { pictureContainer } from '../index';
+
 const pictureContainer = document.querySelector('.gallery');
 
 function createPictureMarkup(images) {
