@@ -1,5 +1,6 @@
 export { createPictureMarkup };
-import { pictureContainer } from '../index';
+// import { pictureContainer } from '../index';
+const pictureContainer = document.querySelector('.gallery');
 
 function createPictureMarkup(images) {
   const markup = images
@@ -14,44 +15,28 @@ function createPictureMarkup(images) {
         downloads,
       } = image;
       return `<div class="photo-card">
-             <a class="picture-link js-link" href="${largeImageURL}">
-                <img class="image" src="${webformatURL}" alt="${tags}" loading="lazy" />
-             </a>
-             <div class="info">
-                <p class="info-item">
-                  <b>Likes ${likes}</b>
-                </p>
-                <p class="info-item">
-                  <b>Views ${views}</b>
-                </p>
-                <p class="info-item">
-                  <b>Comments ${comments}</b>
-                </p>
-                <p class="info-item">
-                   <b>Downloads${downloads}</b>
-                </p>
-             </div>
-        </div>;`;
+                 <div class="thumb">
+                    <a class="picture-link js-link" href="${largeImageURL}">
+                      <img class="image" src="${webformatURL}" alt="${tags}" loading="lazy" />
+                    </a>
+                  </div>
+                  <div class="info">
+                    <p class="info-item">
+                      <b>Likes</b>${likes}
+                    </p>
+                    <p class="info-item">
+                      <b>Views</b>${views}
+                    </p>
+                    <p class="info-item">
+                      <b>Comments</b>${comments}
+                    </p>
+                    <p class="info-item">
+                       <b>Downloads</b>${downloads}
+                    </p>
+                </div>
+              </div>`;
     })
     .join('');
 
   pictureContainer.insertAdjacentHTML('beforeend', markup);
 }
-
-/* <div class="photo-card">
-  <img src="" alt="" loading="lazy" />
-  <div class="info">
-    <p class="info-item">
-      <b>Likes</b>
-    </p>
-    <p class="info-item">
-      <b>Views</b>
-    </p>
-    <p class="info-item">
-      <b>Comments</b>
-    </p>
-    <p class="info-item">
-      <b>Downloads</b>
-    </p>
-  </div>
-</div>; */

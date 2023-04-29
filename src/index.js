@@ -1,61 +1,81 @@
+import './css/styles.css';
+import { fetchPictures } from './js/fetchPictures';
+import { createPictureMarkup } from './js/pictureMarkup';
+import { createPictureMarkup } from './js/pictureMarkup';
+import { onScroll } from './js/scroll';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-// import { createPictureMarkup } from './js/pictureMarkup';
-import { fetchPictures } from './js/fetchPictures';
-import './css/styles.css';
 
-const pictureContainer = document.querySelector('.gallery');
-const searchBtn = document.querySelector('.search-btn');
-const loadMoreBtn = document.querySelector('.load-more');
-// console.log(pictureContainer);
-let query = ""
 const form = document.querySelector('#search-form');
-const formInput = form.elements.searchQuery;
+const pictureContainer = document.querySelector('.gallery');
+const loadMoreBtn = document.querySelector('.load-more');
+const lightbox = new SimpleLightbox('.gallery a');
 
-const addPictureMarcup = createPictureMarkup(fetchPictures());
-pictureContainer.addEventListener('click', onImageClick);
-searchBtn.addEventListener('click', onPictureSearch);
-formInput.addEventListener('input', onFormInput);
-console.log(formInput);
+let query = '';
+let page = 1;
+const perPage = 40;
 
-function onFormInput(evt) {
-  query = evt.currentTarget.value;
-  return query;
-}
-console.log(pictureContainer);
-console.log(formInput);
-function onPictureSearch(evt) {
-  pictureContainer.insertAdjacentHTML('beforeend', addPictureMarcup);
-}
+form.addEventListener('submit', onSearchForm);
+loadMoreBtn.addEventListener('click', onLoadMoreBtn);
 
+loadMoreBtn.style.display = 'none';
 
-async function addGalleryClick() {
-  try {
-    const response = await createPictureMarkup(query, page);
-    const images = response.data.hits;
-    createGalleryItem(images);
-    scroll();
-    lightbox.refresh();
-  } catch (error) {
-    console.error(error);
-  }
-}
+async function onSearchForm(e) {
+  e.preventDefault();
 
+  page = 1;
+  query = e.currentTarget.searchQuery.value.trim();
+  pictureContainer.innerHTML = '';
+  loadMoreBtn.style.display = 'none';
 
-
-function onImageClick(event) {
-  const isGalleryEl = event.target.classList.contains('image');
-
-  event.preventDefault();
-
-  if (!isGalleryEl) {
+  if (query === '') {
+    Notify.failure(
+      'The search string cannot be empty. Please specify your search query.'
+    );
     return;
   }
-}
-const lightbox = new SimpleLightbox('.gallery a', {
-  captionsData: 'alt',
-  captionDelay: 250,
-});
 
-export { pictureContainer };
+  try {
+    const { data } = await fetchPictures(query, page, perPage);
+
+    if (data.totalHits === 0) {
+      Notify.failure(
+        'Sorry, there are no images matching your search query. Please try again.'
+      );
+    } else {
+      createPictureMarkup(data.hits);
+      lightbox.refresh();
+      Notify.success(`Hooray! We found ${data.totalHits} images.`);
+
+      if (data.totalHits > perPage) {
+        loadMoreBtn.style.display = 'block';
+      }
+    }
+  } catch (error) {
+    console.log(error);
+  } finally {
+    form.reset();
+  }
+}
+
+function onLoadMoreBtn() {
+  page += 1;
+
+  fetchPictures(query, page, perPage)
+    .then(({ data }) => {
+      createPictureMarkup(data.hits);
+      lightbox.refresh();
+      onScroll();
+
+      const totalPages = data.totalHits / perPage;
+
+      if (page > totalPages) {
+        loadMoreBtn.style.display = 'none';
+        Notify.failure(
+          "We're sorry, but you've reached the end of search results."
+        );
+      }
+    })
+    .catch(error => console.log(error));
+}
