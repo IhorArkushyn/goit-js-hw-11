@@ -23,7 +23,6 @@ let query = '';
 let totalPages = null;
 let page = 1;
 
-
 form.addEventListener('submit', onSearchForm);
 
 // loadMoreBtn.addEventListener('click', onLoadMoreBtn);
@@ -32,7 +31,7 @@ loadMoreBtn.style.display = 'none';
 
 async function onSearchForm(e) {
   e.preventDefault();
- 
+
   query = e.currentTarget.searchQuery.value.trim();
   pictureContainer.innerHTML = '';
   // loadMoreBtn.style.display = 'none';
@@ -71,32 +70,59 @@ async function onSearchForm(e) {
   }
 }
 
+async function onPagination(entries, observer) {
+  entries.forEach(async entry => {
+    if (entry.isIntersecting) {
+      page += 1;
+      try {
+        const { data } = await fetchPictures(query, page, perPage);
+        createPictureMarkup(data.hits);
+        lightbox.refresh();
+
+        // onScroll();
+
+        totalPages = data.totalHits / perPage;
+
+        if (page > totalPages) {
+          observer.unobserve(guard);
+          // loadMoreBtn.style.display = 'none';
+          Notify.failure(
+            "We're sorry, but you've reached the end of search results."
+          );
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  });
+}
+
 // function onLoadMoreBtn() {
 //   page += 1;
 
-function onPagination(entries, observer) {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      page += 1;
-    }
-  });
+// function onPagination(entries, observer) {
+//   entries.forEach(entry => {
+//     if (entry.isIntersecting) {
+//       page += 1;
+//       fetchPictures(query, page, perPage)
+//         .then(({ data }) => {
+//           createPictureMarkup(data.hits);
+//           lightbox.refresh();
 
-  fetchPictures(query, page, perPage)
-    .then(({ data }) => {
-      createPictureMarkup(data.hits);
-      lightbox.refresh();
+//           // onScroll();
 
-      // onScroll();
+//           totalPages = data.totalHits / perPage;
 
-      totalPages = data.totalHits / perPage;
-  
-      if (page > totalPages) {
-        observer.unobserve(guard)
-        // loadMoreBtn.style.display = 'none';
-        Notify.failure(
-          "We're sorry, but you've reached the end of search results."
-        );
-      }
-    })
-    .catch(error => console.log(error));
-}
+//           if (page > totalPages) {
+//             observer.unobserve(guard);
+//             // loadMoreBtn.style.display = 'none';
+//             Notify.failure(
+//               "We're sorry, but you've reached the end of search results."
+//             );
+//           }
+//         })
+//         .catch(error => console.log(error));
+//     }
+//   });
+
+// }
