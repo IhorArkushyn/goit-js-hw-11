@@ -16,9 +16,7 @@ async function fetchPictures(query, page, perPage) {
     page: page,
   });
   const response = await axios.get(`?${params}`);
-  
   return response;
- 
 }
 
 

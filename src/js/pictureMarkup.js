@@ -1,19 +1,6 @@
 export { createPictureMarkup };
-// import { fetchPictures } from './fetchPictures';
-const pictureContainer = document.querySelector('.gallery');
-// const guard = document.querySelector('.js-guard');
 
-// const options = {
-//   root: null,
-//   rootMargin: '400px',
-//   threshold: 0,
-// };
-// let observer = new IntersectionObserver(onPagination, options);
-// // console.log(entries);
-// function onPagination(entries, observer) {
-//   console.log(entries);
-//   // entries.forEach(entry => {});
-// }
+const pictureContainer = document.querySelector('.gallery');
 
 function createPictureMarkup(images) {
   const markup = images
@@ -52,7 +39,4 @@ function createPictureMarkup(images) {
     .join('');
 
   pictureContainer.insertAdjacentHTML('beforeend', markup);
-  // if (data.page !== data.totalPages) {
-  //   observer.observe(guard);
-  // }
 }

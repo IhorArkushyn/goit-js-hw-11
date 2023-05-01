@@ -1,26 +1,28 @@
 import './css/styles.css';
 import { fetchPictures } from './js/fetchPictures';
 import { createPictureMarkup } from './js/pictureMarkup';
-import { onScroll } from './js/scroll';
+// import { onScroll } from './js/scroll';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-let page = 1;
+
 const guard = document.querySelector('.js-guard');
 const form = document.querySelector('#search-form');
 const pictureContainer = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
 const lightbox = new SimpleLightbox('.gallery a');
-let totalPages;
+const perPage = 40;
 const options = {
   root: null,
-  rootMargin: '400px',
+  rootMargin: '500px',
   threshold: 0,
 };
 const observer = new IntersectionObserver(onPagination, options);
 
 let query = '';
-const perPage = 40;
+let totalPages = null;
+let page = 1;
+
 
 form.addEventListener('submit', onSearchForm);
 
@@ -30,12 +32,10 @@ loadMoreBtn.style.display = 'none';
 
 async function onSearchForm(e) {
   e.preventDefault();
-  
-
-
+ 
   query = e.currentTarget.searchQuery.value.trim();
   pictureContainer.innerHTML = '';
-  loadMoreBtn.style.display = 'none';
+  // loadMoreBtn.style.display = 'none';
 
   if (query === '') {
     Notify.failure(
@@ -43,10 +43,8 @@ async function onSearchForm(e) {
     );
     return;
   }
-
   try {
     const { data } = await fetchPictures(query, page, perPage);
-
     if (data.totalHits === 0) {
       Notify.failure(
         'Sorry, there are no images matching your search query. Please try again.'
@@ -62,9 +60,9 @@ async function onSearchForm(e) {
       lightbox.refresh();
       Notify.success(`Hooray! We found ${data.totalHits} images.`);
 
-      if (data.totalHits > perPage) {
-        loadMoreBtn.style.display = 'block';
-      }
+      // if (data.totalHits > perPage) {
+      //   loadMoreBtn.style.display = 'block';
+      // }
     }
   } catch (error) {
     console.log(error);
@@ -77,7 +75,6 @@ async function onSearchForm(e) {
 //   page += 1;
 
 function onPagination(entries, observer) {
-  console.log(entries);
   entries.forEach(entry => {
     if (entry.isIntersecting) {
       page += 1;
@@ -92,9 +89,10 @@ function onPagination(entries, observer) {
       // onScroll();
 
       totalPages = data.totalHits / perPage;
-
+  
       if (page > totalPages) {
-        loadMoreBtn.style.display = 'none';
+        observer.unobserve(guard)
+        // loadMoreBtn.style.display = 'none';
         Notify.failure(
           "We're sorry, but you've reached the end of search results."
         );
