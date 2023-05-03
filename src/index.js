@@ -98,32 +98,7 @@ async function onSearchForm(e) {
 //   });
 // }
 
-// function onLoadMoreBtn() {
-//   page += 1;
 
-//   // function onPagination(entries, observer) {
-//   //   entries.forEach(entry => {
-//   //     if (entry.isIntersecting) {
-//   // page += 1;
-//   fetchPictures(query, page, perPage)
-//     .then(({ data }) => {
-//       createPictureMarkup(data.hits);
-//       lightbox.refresh();
-
-//       onScroll();
-
-//       totalPages = data.totalHits / perPage;
-
-//       if (page > totalPages) {
-//         observer.unobserve(guard);
-//         loadMoreBtn.style.display = 'none';
-//         Notify.failure(
-//           "We're sorry, but you've reached the end of search results."
-//         );
-//       }
-//     })
-//     .catch(error => console.log(error));
-// }
 
 
 async function onLoadMoreBtn() {
@@ -137,15 +112,18 @@ async function onLoadMoreBtn() {
 
     onScroll();
 
-    const totalPages = data.totalHits / perPage;
+  totalPages = data.totalHits / perPage;
 
     if (page > totalPages) {
-      observer.unobserve(guard);
+      // observer.unobserve(guard);
       loadMoreBtn.style.display = 'none';
       Notify.failure(
         "We're sorry, but you've reached the end of search results."
       );
     }
+    if (page >= totalPages) {
+     loadMoreBtn.style.display = 'none';
+   }
   } catch (error) {
     console.log(error);
   }
